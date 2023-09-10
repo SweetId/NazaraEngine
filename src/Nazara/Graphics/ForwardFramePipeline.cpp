@@ -246,6 +246,7 @@ namespace Nz
 		viewerData.renderOrder = renderOrder;
 		viewerData.debugDrawPass = std::make_unique<DebugDrawPipelinePass>(*this, viewerInstance);
 		viewerData.depthPrepass = std::make_unique<DepthPipelinePass>(*this, m_elementRegistry, viewerInstance, depthPassIndex, "Depth pre-pass");
+		viewerData.gammaCorrectionPass = std::make_unique<PostProcessPipelinePass>(*this, "Gamma correction", "PostProcess.GammaCorrection");
 		viewerData.forwardPass = std::make_unique<ForwardPipelinePass>(*this, m_elementRegistry, viewerInstance);
 		viewerData.viewer = viewerInstance;
 		viewerData.onTransferRequired.Connect(viewerInstance->GetViewerInstance().OnTransferRequired, [this](TransferInterface* transferInterface)
@@ -391,6 +392,9 @@ namespace Nz
 
 			if (viewerData.depthPrepass)
 				viewerData.depthPrepass->Prepare(renderFrame, frustum, visibleRenderables, depthVisibilityHash);
+
+			if (viewerData.gammaCorrectionPass)
+				viewerData.gammaCorrectionPass->Prepare(renderFrame);
 
 			viewerData.forwardPass->Prepare(renderFrame, frustum, visibleRenderables, m_visibleLights, visibilityHash);
 
@@ -606,8 +610,6 @@ namespace Nz
 				PixelFormat::RGBA8
 			});
 			
-			viewerData.debugColorAttachment = frameGraph.AddAttachmentProxy("Debug draw output", viewerData.forwardColorAttachment);
-
 			viewerData.depthStencilAttachment = frameGraph.AddAttachment({
 				"Depth-stencil buffer",
 				Graphics::Instance()->GetPreferredDepthStencilFormat()
@@ -623,7 +625,23 @@ namespace Nz
 				lightData->shadowData->RegisterPassInputs(forwardPass);
 			}
 
-			viewerData.debugDrawPass->RegisterToFrameGraph(frameGraph, viewerData.forwardColorAttachment, viewerData.debugColorAttachment);
+			std::size_t nextAttachment;
+			if (viewerData.gammaCorrectionPass)
+			{
+				std::size_t postGammaColorAttachment = frameGraph.AddAttachment({
+					"Gamma-corrected output",
+					PixelFormat::RGBA8
+				});
+
+				viewerData.gammaCorrectionPass->RegisterToFrameGraph(frameGraph, viewerData.forwardColorAttachment, postGammaColorAttachment);
+
+				nextAttachment = postGammaColorAttachment;
+			}
+			else
+				nextAttachment = viewerData.forwardColorAttachment;
+
+			viewerData.debugColorAttachment = frameGraph.AddAttachmentProxy("Debug draw output", nextAttachment);
+			viewerData.debugDrawPass->RegisterToFrameGraph(frameGraph, nextAttachment, viewerData.debugColorAttachment);
 		}
 
 		using ViewerPair = std::pair<const RenderTarget*, const ViewerData*>;
