@@ -607,7 +607,7 @@ namespace Nz
 		{
 			viewerData.forwardColorAttachment = frameGraph.AddAttachment({
 				"Forward output",
-				PixelFormat::RGBA8
+				PixelFormat::RGBA8Unorm
 			});
 			
 			viewerData.depthStencilAttachment = frameGraph.AddAttachment({
@@ -630,7 +630,7 @@ namespace Nz
 			{
 				std::size_t postGammaColorAttachment = frameGraph.AddAttachment({
 					"Gamma-corrected output",
-					PixelFormat::RGBA8
+					PixelFormat::RGBA16Float
 				});
 
 				viewerData.gammaCorrectionPass->RegisterToFrameGraph(frameGraph, viewerData.forwardColorAttachment, postGammaColorAttachment);
@@ -675,7 +675,7 @@ namespace Nz
 
 			renderTargetData.finalAttachment = frameGraph.AddAttachment({
 				"Viewer output",
-				PixelFormat::RGBA8
+				PixelFormat::RGBA8Unorm
 			});
 
 			for (const ViewerData* viewerData : targetViewers)

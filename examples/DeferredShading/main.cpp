@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
 
 	Nz::TextureParams texParams;
 	texParams.renderDevice = device;
-	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
+	texParams.loadFormat = Nz::PixelFormat::RGBA8_sRGB;
 
 	// Plane
 	Nz::MeshParams meshPrimitiveParams;
@@ -161,7 +161,7 @@ int main(int argc, char* argv[])
 	// Skybox
 	std::shared_ptr<Nz::Texture> skyboxTexture;
 	{
-		Nz::Image skyboxImage(Nz::ImageType::Cubemap, Nz::PixelFormat::RGBA8, 2048, 2048);
+		Nz::Image skyboxImage(Nz::ImageType::Cubemap, Nz::PixelFormat::RGBA8Unorm, 2048, 2048);
 		skyboxImage.LoadFaceFromFile(Nz::CubemapFace::PositiveX, resourceDir / "purple_nebula_skybox/purple_nebula_skybox_right1.png");
 		skyboxImage.LoadFaceFromFile(Nz::CubemapFace::PositiveY, resourceDir / "purple_nebula_skybox/purple_nebula_skybox_top3.png");
 		skyboxImage.LoadFaceFromFile(Nz::CubemapFace::PositiveZ, resourceDir / "purple_nebula_skybox/purple_nebula_skybox_front5.png");
@@ -668,17 +668,17 @@ int main(int argc, char* argv[])
 
 		colorTexture = graph.AddAttachment({
 			"Color",
-			Nz::PixelFormat::RGBA8
+			Nz::PixelFormat::RGBA8Unorm
 		});
 
 		normalTexture = graph.AddAttachment({
 			"Normal",
-			Nz::PixelFormat::RGBA8
+			Nz::PixelFormat::RGBA8Unorm
 		});
 
 		positionTexture = graph.AddAttachment({
 			"Position",
-			Nz::PixelFormat::RGBA32F
+			Nz::PixelFormat::RGBA32Float
 		});
 
 		depthBuffer1 = graph.AddAttachment({
@@ -693,17 +693,17 @@ int main(int argc, char* argv[])
 
 		lightOutput = graph.AddAttachment({
 			"Light output",
-			Nz::PixelFormat::RGBA16F
+			Nz::PixelFormat::RGBA16Float
 		});
 
 		occluderTexture = graph.AddAttachment({
 			"Occluder texture",
-			Nz::PixelFormat::RGBA8,
+			Nz::PixelFormat::RGBA8Unorm,
 		});
 
 		godRaysTexture = graph.AddAttachment({
 			"God rays texture",
-			Nz::PixelFormat::RGBA16F,
+			Nz::PixelFormat::RGBA16Float,
 			Nz::FramePassAttachmentSize::SwapchainFactor,
 			50'000,
 			50'000
@@ -714,7 +714,7 @@ int main(int argc, char* argv[])
 		unsigned int bloomSize = 50'000;
 		bloomBrightOutput = graph.AddAttachment({
 			"Bloom bright output",
-			Nz::PixelFormat::RGBA16F,
+			Nz::PixelFormat::RGBA16Float,
 			Nz::FramePassAttachmentSize::SwapchainFactor,
 			bloomSize,
 			bloomSize
@@ -724,7 +724,7 @@ int main(int argc, char* argv[])
 		{
 			bloomTextures[i * 2 + 0] = graph.AddAttachment({
 				"Bloom texture #" + std::to_string(i),
-				Nz::PixelFormat::RGBA16F,
+				Nz::PixelFormat::RGBA16Float,
 				Nz::FramePassAttachmentSize::SwapchainFactor,
 				bloomSize,
 				bloomSize
@@ -733,7 +733,7 @@ int main(int argc, char* argv[])
 
 			bloomTextures[i * 2 + 1] = graph.AddAttachment({
 				"Bloom texture #" + std::to_string(i),
-				Nz::PixelFormat::RGBA16F,
+				Nz::PixelFormat::RGBA16Float,
 				Nz::FramePassAttachmentSize::SwapchainFactor,
 				bloomSize,
 				bloomSize
@@ -744,7 +744,7 @@ int main(int argc, char* argv[])
 
 		toneMappingOutput = graph.AddAttachment({
 			"Tone mapping",
-			Nz::PixelFormat::RGBA8,
+			Nz::PixelFormat::RGBA8Unorm,
 			Nz::FramePassAttachmentSize::SwapchainFactor,
 			100'000,
 			100'000
